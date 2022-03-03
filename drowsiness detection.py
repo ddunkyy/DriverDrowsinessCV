@@ -19,7 +19,8 @@ lbl=['Close','Open']
 
 model = load_model('models/cnncat2.h5')
 path = os.getcwd()
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture("WIN_20220303_15_34_44_Pro.mp4")
+#cap = cv2.VideoCapture(0)
 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 count=0
 score=0
@@ -51,9 +52,11 @@ while(True):
         r_eye = r_eye.reshape(24,24,-1)
         r_eye = np.expand_dims(r_eye,axis=0)
         rpred = model.predict(r_eye)
-        if(rpred[0][0] == 0):
-            lbl='Open' 
-        if(rpred[0][0] == 0):
+        #r = rpred[0][0] + rpred[0][1]
+        #print("right:" + str(rpred[0][1]))
+        if(rpred[0][1] > 0.5):
+            lbl='Open'
+        else:
             lbl='Closed'
         break
 
@@ -66,13 +69,15 @@ while(True):
         l_eye=l_eye.reshape(24,24,-1)
         l_eye = np.expand_dims(l_eye,axis=0)
         lpred = model.predict(l_eye)
-        if(lpred[0][0] == 0):
-            lbl='Open'   
-        if(lpred[0][0] == 0):
+        #l = lpred[0][0] + lpred[0][1]
+        #print("left:" + str(lpred[0][1]))
+        if(lpred[0][1] > 0.5):
+            lbl='Open'
+        else:
             lbl='Closed'
         break
 
-    if(rpred[0][0]==0 and lpred[0][0]==0):
+    if(rpred[0][1] <= 0.5 and lpred[0][1] <= 0.5):
         score=score+1
         cv2.putText(frame,"Closed",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
     # if(rpred[0]==1 or lpred[0]==1):
