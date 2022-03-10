@@ -3,7 +3,7 @@ import os
 from keras.models import load_model
 import numpy as np
 from pygame import mixer
-import time
+#import time
 
 
 mixer.init()
@@ -19,11 +19,13 @@ lbl=['Close','Open']
 
 model = load_model('models/cnncat2.h5')
 path = os.getcwd()
-cap = cv2.VideoCapture("WIN_20220303_15_34_44_Pro.mp4")
-#cap = cv2.VideoCapture(0)
+#cap = cv2.VideoCapture("Fast blink.mp4")
+#cap = cv2.VideoCapture("Long open and close.mp4")
+cap = cv2.VideoCapture(0)
 font = cv2.FONT_HERSHEY_COMPLEX_SMALL
 count=0
 score=0
+blink = 0
 thicc=2
 rpred=[99]
 lpred=[99]
@@ -52,8 +54,7 @@ while(True):
         r_eye = r_eye.reshape(24,24,-1)
         r_eye = np.expand_dims(r_eye,axis=0)
         rpred = model.predict(r_eye)
-        #r = rpred[0][0] + rpred[0][1]
-        #print("right:" + str(rpred[0][1]))
+        print(rpred[0][1])
         if(rpred[0][1] > 0.5):
             lbl='Open'
         else:
@@ -69,33 +70,34 @@ while(True):
         l_eye=l_eye.reshape(24,24,-1)
         l_eye = np.expand_dims(l_eye,axis=0)
         lpred = model.predict(l_eye)
-        #l = lpred[0][0] + lpred[0][1]
-        #print("left:" + str(lpred[0][1]))
+        print(lpred[0][1])
         if(lpred[0][1] > 0.5):
             lbl='Open'
         else:
             lbl='Closed'
         break
 
-    if(rpred[0][1] <= 0.5 and lpred[0][1] <= 0.5):
+    if rpred[0][1] < 0.5 and lpred[0][1] < 0.5:
         score=score+1
         cv2.putText(frame,"Closed",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
-    # if(rpred[0]==1 or lpred[0]==1):
     else:
         score=score-1
         cv2.putText(frame,"Open",(10,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
-    
-        
-    if(score<0):
-        score=0   
+
+    if(score < 0):
+        score = 0
     cv2.putText(frame,'Score:'+str(score),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
-    if(score>15):
-        #person is feeling sleepy so we beep the alarm
+
+    if score == 4:
+        blink = blink +1
+    cv2.putText(frame,'Blink:'+str(int(blink/2)),(210,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+
+    if(score > 10):
         cv2.imwrite(os.path.join(path,'image.jpg'),frame)
         try:
             sound.play()
-            
-        except:  # isplaying = False
+
+        except:
             pass
         if(thicc<16):
             thicc= thicc+2
@@ -107,5 +109,6 @@ while(True):
     cv2.imshow("frame",frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
 cap.release()
 cv2.destroyAllWindows()
