@@ -54,7 +54,6 @@ while(True):
         r_eye = r_eye.reshape(24,24,-1)
         r_eye = np.expand_dims(r_eye,axis=0)
         rpred = model.predict(r_eye)
-        print(rpred[0][1])
         if(rpred[0][1] > 0.5):
             lbl='Open'
         else:
@@ -70,7 +69,6 @@ while(True):
         l_eye=l_eye.reshape(24,24,-1)
         l_eye = np.expand_dims(l_eye,axis=0)
         lpred = model.predict(l_eye)
-        print(lpred[0][1])
         if(lpred[0][1] > 0.5):
             lbl='Open'
         else:
@@ -93,7 +91,7 @@ while(True):
     cv2.putText(frame,'Blink:'+str(int(blink/2)),(210,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
 
     if(score > 10):
-        cv2.imwrite(os.path.join(path,'image.jpg'),frame)
+        #cv2.imwrite(os.path.join(path,'image.jpg'),frame)
         try:
             sound.play()
 
