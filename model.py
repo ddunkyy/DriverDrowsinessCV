@@ -51,27 +51,27 @@ model = Sequential([
 #output a softmax to squash the matrix into output probabilities
     Dense(4, activation='softmax')
 ])
+
+#for i in range(1):
+#print("Loop #: " + str(i))
+#model = load_model('models/cnncat.h5')
+opt = keras.optimizers.Adam(learning_rate=0.0105)
+
+model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
+history1 = model.fit(train_batch, validation_data=valid_batch,epochs=100,steps_per_epoch=SPE ,validation_steps=VS)
+
+    #model.save('models/cnnCat2.h5', overwrite=True)
+
 '''
-for i in range(1):
-    print("Loop #: " + str(i))
-    model = load_model('models/cnncat2.h5')
-    opt = keras.optimizers.Adam(learning_rate=0.01)
-
-    model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
-    history1 = model.fit(train_batch, validation_data=valid_batch,epochs=100,steps_per_epoch=SPE ,validation_steps=VS)
-
-    model.save('models/cnnCat2.h5', overwrite=True)
-'''
-
 opt = keras.optimizers.Adam(learning_rate=0.01)
 model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
 history1 = model.fit(train_batch, validation_data=valid_batch,epochs=20,steps_per_epoch=SPE ,validation_steps=VS)
-
-#print(history1.history.keys())
+model.save('models/cnnCat.h5', overwrite=True)
+'''
 
 loss_train = history1.history['loss']
 loss_val = history1.history['accuracy']
-epochs = range(1,21)
+epochs = range(1,101,1)
 plt.plot(epochs, loss_train, 'g', label='Loss')
 plt.plot(epochs, loss_val, 'b', label='Accuracy')
 plt.title('Model''s Accuracy and Loss')
