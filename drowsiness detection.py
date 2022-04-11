@@ -27,10 +27,10 @@ count=0
 score=0
 blink = 0
 thicc=2
-rpred=[99]
-lpred=[99]
+
 
 while(True):
+    count = count + 1
     ret, frame = cap.read()
     height,width = frame.shape[:2] 
 
@@ -40,14 +40,13 @@ while(True):
     left_eye = leye.detectMultiScale(gray)
     right_eye =  reye.detectMultiScale(gray)
 
-    cv2.rectangle(frame, (0,height-50) , (200,height) , (0,0,0) , thickness=cv2.FILLED )
+    cv2.rectangle(frame, (0,height-50) , (475,height) , (0,0,0) , thickness=cv2.FILLED )
 
     for (x,y,w,h) in faces:
         cv2.rectangle(frame, (x,y) , (x+w,y+h) , (255,0,0) , 2 )
 
     for (x,y,w,h) in right_eye:
         r_eye=frame[y:y+h,x:x+w]
-        count=count+1
         r_eye = cv2.cvtColor(r_eye,cv2.COLOR_BGR2GRAY)
         r_eye = cv2.resize(r_eye,(24,24))
         r_eye = r_eye/255
@@ -62,7 +61,6 @@ while(True):
 
     for (x,y,w,h) in left_eye:
         l_eye=frame[y:y+h,x:x+w]
-        count=count+1
         l_eye = cv2.cvtColor(l_eye,cv2.COLOR_BGR2GRAY)  
         l_eye = cv2.resize(l_eye,(24,24))
         l_eye= l_eye/255
@@ -84,11 +82,11 @@ while(True):
 
     if(score < 0):
         score = 0
-    cv2.putText(frame,'Score:'+str(score),(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+    cv2.putText(frame,'Closed for: '+str(score) + " frames",(100,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
 
-    if score == 4:
+    if score == 1:
         blink = blink +1
-    cv2.putText(frame,'Blink:'+str(int(blink/2)),(210,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
+    cv2.putText(frame,'Blink:' +str(blink//2),(375,height-20), font, 1,(255,255,255),1,cv2.LINE_AA)
 
     if(score > 10):
         #cv2.imwrite(os.path.join(path,'image.jpg'),frame)

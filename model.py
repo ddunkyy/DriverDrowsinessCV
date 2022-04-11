@@ -8,6 +8,7 @@ import random,shutil
 from keras.models import Sequential
 from keras.layers import Dropout,Conv2D,Flatten,Dense, MaxPooling2D, BatchNormalization
 from keras.models import load_model
+from keras import backend as K
 
 print(os.curdir)
 
@@ -57,8 +58,29 @@ model = Sequential([
 #model = load_model('models/cnncat.h5')
 opt = keras.optimizers.Adam(learning_rate=0.0105)
 
-model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy'])
-history1 = model.fit(train_batch, validation_data=valid_batch,epochs=100,steps_per_epoch=SPE ,validation_steps=VS)
+def recall_m(y_true, y_pred):
+    y_true = K.ones_like(y_true) 
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    all_positives = K.sum(K.round(K.clip(y_true, 0, 1)))
+    
+    recall = true_positives / (all_positives + K.epsilon())
+    return recall
+
+def precision_m(y_true, y_pred):
+    y_true = K.ones_like(y_true) 
+    true_positives = K.sum(K.round(K.clip(y_true * y_pred, 0, 1)))
+    
+    predicted_positives = K.sum(K.round(K.clip(y_pred, 0, 1)))
+    precision = true_positives / (predicted_positives + K.epsilon())
+    return precision
+
+def f1_score(y_true, y_pred):
+    precision = precision_m(y_true, y_pred)
+    recall = recall_m(y_true, y_pred)
+    return 2*((precision*recall)/(precision+recall+K.epsilon()))
+
+model.compile(optimizer=opt,loss='categorical_crossentropy',metrics=['accuracy', recall_m, precision_m, f1_score ])
+history1 = model.fit(train_batch, validation_data=valid_batch,epochs=10,steps_per_epoch=SPE ,validation_steps=VS)
 
     #model.save('models/cnnCat2.h5', overwrite=True)
 
@@ -69,13 +91,14 @@ history1 = model.fit(train_batch, validation_data=valid_batch,epochs=20,steps_pe
 model.save('models/cnnCat.h5', overwrite=True)
 '''
 
-loss_train = history1.history['loss']
-loss_val = history1.history['accuracy']
+
+loss_train = history1.history['accuracy']
+loss_val = history1.history['val_accuracy']
 epochs = range(1,101,1)
-plt.plot(epochs, loss_train, 'g', label='Loss')
-plt.plot(epochs, loss_val, 'b', label='Accuracy')
-plt.title('Model''s Accuracy and Loss')
+plt.plot(epochs, loss_train, 'g', label='Train Accuracy')
+plt.plot(epochs, loss_val, 'b', label='Validation Accuracy')
+plt.title('Train and Validation Accuracy')
 plt.xlabel('Epochs')
-plt.ylabel('Percentage')
+plt.ylabel('Loss')
 plt.legend()
 plt.show()
