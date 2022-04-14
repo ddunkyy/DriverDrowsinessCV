@@ -27,7 +27,8 @@ count=0
 score=0
 blink = 0
 thicc=2
-
+rpred = [[0,1]]
+lpred = [[0,1]]
 
 while(True):
     count = count + 1
